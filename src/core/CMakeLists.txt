@@ -32,14 +32,14 @@ add_library(core STATIC
     cheats/cheats.h
     cheats/gateway_cheat.cpp
     cheats/gateway_cheat.h
+    cache_file.cpp
+    cache_file.h
     core.cpp
     core.h
     core_timing.cpp
     core_timing.h
     custom_tex_cache.cpp
     custom_tex_cache.h
-    dumping/backend.cpp
-    dumping/backend.h
     file_sys/archive_backend.cpp
     file_sys/archive_backend.h
     file_sys/archive_extsavedata.cpp
@@ -108,10 +108,8 @@ add_library(core STATIC
     frontend/framebuffer_layout.h
     frontend/image_interface.h
     frontend/input.h
-    frontend/mic.cpp
     frontend/mic.h
-    frontend/scope_acquire_context.cpp
-    frontend/scope_acquire_context.h
+    frontend/mic.cpp
     gdbstub/gdbstub.cpp
     gdbstub/gdbstub.h
     hle/applets/applet.cpp
@@ -164,7 +162,6 @@ add_library(core STATIC
     hle/kernel/server_session.cpp
     hle/kernel/server_session.h
     hle/kernel/session.h
-    hle/kernel/session.cpp
     hle/kernel/shared_memory.cpp
     hle/kernel/shared_memory.h
     hle/kernel/shared_page.cpp
@@ -314,8 +311,14 @@ add_library(core STATIC
     hle/service/ldr_ro/cro_helper.h
     hle/service/ldr_ro/ldr_ro.cpp
     hle/service/ldr_ro/ldr_ro.h
+    hle/service/luma/hbldr.cpp
+    hle/service/luma/hbldr.h
     hle/service/mic_u.cpp
     hle/service/mic_u.h
+    hle/service/mcu/mcu.cpp
+    hle/service/mcu/mcu.h
+    hle/service/mcu/hwc.cpp
+    hle/service/mcu/hwc.h
     hle/service/mvd/mvd.cpp
     hle/service/mvd/mvd.h
     hle/service/mvd/mvd_std.cpp
@@ -438,7 +441,6 @@ add_library(core STATIC
     loader/smdh.h
     memory.cpp
     memory.h
-    mmio.h
     movie.cpp
     movie.h
     perf_stats.cpp
@@ -451,8 +453,6 @@ add_library(core STATIC
     rpc/server.h
     rpc/udp_server.cpp
     rpc/udp_server.h
-    savestate.cpp
-    savestate.h
     settings.cpp
     settings.h
     telemetry_session.cpp
@@ -462,28 +462,13 @@ add_library(core STATIC
     tracer/recorder.h
 )
 
-if (ENABLE_FFMPEG_VIDEO_DUMPER)
-    target_sources(core PRIVATE
-        dumping/ffmpeg_backend.cpp
-        dumping/ffmpeg_backend.h
-    )
-endif()
-
 create_target_directory_groups(core)
 
 target_link_libraries(core PUBLIC common PRIVATE audio_core network video_core)
-target_link_libraries(core PUBLIC Boost::boost PRIVATE cryptopp fmt open_source_archives Boost::serialization)
-
+target_link_libraries(core PUBLIC Boost::boost PRIVATE cryptopp fmt open_source_archives lzo dds-ktx)
 if (ENABLE_WEB_SERVICE)
-    get_directory_property(OPENSSL_LIBS
-        DIRECTORY ${PROJECT_SOURCE_DIR}/externals/libressl
-        DEFINITION OPENSSL_LIBS)
-
-    target_compile_definitions(core PRIVATE -DENABLE_WEB_SERVICE -DCPPHTTPLIB_OPENSSL_SUPPORT)
-    target_link_libraries(core PRIVATE web_service ${OPENSSL_LIBS} httplib lurlparser)
-    if (ANDROID)
-        target_link_libraries(core PRIVATE ifaddrs)
-    endif()
+    target_compile_definitions(core PRIVATE -DENABLE_WEB_SERVICE)
+    target_link_libraries(core PRIVATE web_service)
 endif()
 
 if (ARCHITECTURE_x86_64 OR ARCHITECTURE_ARM64)
@@ -494,8 +479,4 @@ if (ARCHITECTURE_x86_64 OR ARCHITECTURE_ARM64)
         arm/dynarmic/arm_dynarmic_cp15.h
     )
     target_link_libraries(core PRIVATE dynarmic)
-endif()
-
-if (ENABLE_FFMPEG_VIDEO_DUMPER)
-    target_link_libraries(core PUBLIC FFmpeg::avcodec FFmpeg::avformat FFmpeg::swscale FFmpeg::swresample FFmpeg::avutil)
 endif()

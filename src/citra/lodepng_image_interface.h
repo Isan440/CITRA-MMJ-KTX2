@@ -8,7 +8,20 @@
 
 class LodePNGImageInterface final : public Frontend::ImageInterface {
 public:
-    bool DecodePNG(std::vector<u8>& dst, u32& width, u32& height, const std::string& path) override;
-    bool EncodePNG(const std::string& path, const std::vector<u8>& src, u32 width,
+    bool DecodePNG(std::vector<u8>& dst, u32& width,
+                   u32& height,
+                   const std::string& path) override;
+
+    bool DecodeDDS(std::vector<u8>& dst, u32& width,
+                   u32& height,
+                   const std::string& path) override;
+
+    bool DecodeKTX(std::vector<u8>& dst, u32& width,
+                   u32& height,
+                   const std::string& path) override;
+
+    bool EncodePNG(const std::string& path,
+                   const std::vector<u8>& src,
+                   u32 width,
                    u32 height) override;
 };
