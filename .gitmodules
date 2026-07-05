@@ -52,3 +52,6 @@
 [submodule "externals/libktx"]
 	path = externals/libktx
 	url = https://github.com/KhronosGroup/KTX-Software.git
+[submodule "externals/dds-ktx"]
+        path = externals/dds-ktx
+        url = https://github.com/septag/dds-ktx.git
